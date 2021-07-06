@@ -24,24 +24,50 @@ class PersonList(APIView):
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-class PersonDetail(APIView):
+class ContacsOnlyList(APIView):
+    def get(self, request, format=None):
+        snippets = Contacts.objects.all()
+        serializer = ContactsSerializer(snippets, many=True)
+        return Response(serializer.data)
+
+    def post(self, request, format=None):
+        serializer = ContactsSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class ContactsList(APIView):
     """
     List all snippets, or create a new snippet.
     """ 
     def get_object(self, PersonId):
         try:
-            return Person.objects.get(PersonId=PersonId)
+            return Contacts.objects.get(personId=PersonId)
         except Person.DoesNotExist:
             raise Http404
 
+    # def get(self, request, format=None):
+    #     snippets = Contacts.objects.all()
+    #     serializer = ContactsSerializer(snippets, many=True)
+    #     return Response(serializer.data)
+
     def get(self, request, PersonId, format=None):
         snippet = self.get_object(PersonId)
-        serializer = SnippetSerializer(snippet)
+        serializer = ContactsSerializer(snippet)
         return Response(serializer.data)
+        
+    def post(self, request, format=None):
+        serializer = ContactsSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     def put(self, request, PersonId, format=None):
         snippet = self.get_object(PersonId)
-        serializer = SnippetSerializer(snippet, data=request.data)
+        serializer = ContactsSerializer(snippet, data=request.data)
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data)
