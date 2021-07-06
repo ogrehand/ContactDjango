@@ -1,0 +1,53 @@
+from django.shortcuts import render
+from django.views.decorators.csrf import csrf_exempt
+
+from contact.models import Person, Contacts
+from contact.serializers import PersonSerializer, ContactsSerializer
+from django.http import Http404
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework import status
+
+# Create your views here.
+
+
+class PersonList(APIView):
+    def get(self, request, format=None):
+        snippets = Person.objects.all()
+        serializer = PersonSerializer(snippets, many=True)
+        return Response(serializer.data)
+
+    def post(self, request, format=None):
+        serializer = PersonSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+class PersonDetail(APIView):
+    """
+    List all snippets, or create a new snippet.
+    """ 
+    def get_object(self, PersonId):
+        try:
+            return Person.objects.get(PersonId=PersonId)
+        except Person.DoesNotExist:
+            raise Http404
+
+    def get(self, request, PersonId, format=None):
+        snippet = self.get_object(PersonId)
+        serializer = SnippetSerializer(snippet)
+        return Response(serializer.data)
+
+    def put(self, request, PersonId, format=None):
+        snippet = self.get_object(PersonId)
+        serializer = SnippetSerializer(snippet, data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def delete(self, request, PersonId, format=None):
+        snippet = self.get_object(PersonId)
+        snippet.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
