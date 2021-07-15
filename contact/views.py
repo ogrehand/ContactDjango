@@ -7,9 +7,18 @@ from django.http import Http404
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
+from rest_framework.decorators import api_view
+from rest_framework.reverse import reverse
 
 # Create your views here.
 
+
+# @api_view(['GET'])
+# def api_root(request, format=None):
+#     return Response({
+#         'persons': reverse('user-list', request=request, format=format),
+#         'contacts': reverse('snippet-list', request=request, format=format)
+#     })
 
 class PersonList(APIView):
     def get(self, request, format=None):
